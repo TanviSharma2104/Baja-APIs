@@ -7,30 +7,32 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post("https://customer-analytics-34146.my.salesforce-sites.com/services/apexrest/buyStocks", (req, res) => {
-	try {
-		const userCompany = "Bajaj Finserv Ltd";
-		const userPrice = "1,577.65";
-		const userAccountNumber = "BFHL0018630";
-		const repoLink="https://github.com/TanviSharma2104/Bajaj-APIs";
+const buyStocks = async (req, res) => {
+    try {
+        const { userCompany, userPrice, userAccountNumber, repoLink } = req.body;
 
-		
+        if (!userCompany || !userPrice || !userAccountNumber || !repoLink) {
+            return res.status(400).json({ error: "Invalid input", isSuccess: false });
+        }
 
-		const response = {
-			is_success: true,
-			company:userCompany,
-			currentPrice:userPrice,
-			accountNumber:userAccountNumber,
-			githubRepoLink:repoLink,
-		};
-		res.set("Content-Type", "application/json");
-		res.set("bfhl-auth", "2110991440");
+        const response = {
+            isSuccess: true,
+            company: userCompany,
+            currentPrice: userPrice,
+            accountNumber: userAccountNumber,
+            githubRepoLink: repoLink,
+        };
 
-		res.status(200).json(response);
-	} catch (error) {
-		res.status(500).json({ error: error.message, is_success: false });
-	}
-});
+        res.set("Content-Type", "application/json");
+        res.set("bfhl-auth", process.env.BFHL_AUTH);
+
+        res.status(200).json(response);
+	    
+    } catch (error) {
+        res.status(500).json({ error: error.message, isSuccess: false });
+    }
+};
+app.post("/buyStocks", buyStocks);
 
 app.listen(port, () => {
 	console.log(`Server is running on http://localhost:${port}`);
